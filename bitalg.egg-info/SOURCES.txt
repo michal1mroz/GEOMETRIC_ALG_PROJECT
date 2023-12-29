@@ -1,0 +1,8 @@
+README.md
+setup.py
+bitalg/__init__.py
+bitalg.egg-info/PKG-INFO
+bitalg.egg-info/SOURCES.txt
+bitalg.egg-info/dependency_links.txt
+bitalg.egg-info/requires.txt
+bitalg.egg-info/top_level.txt
