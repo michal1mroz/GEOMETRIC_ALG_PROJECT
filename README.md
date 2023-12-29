@@ -1,6 +1,6 @@
 # Trapezoidal decomposition for point location problem.
 
-This repository contains the python implementation together with the implementation (written in Polish) of the
+This repository contains the python implementation together with the documentation (written in Polish) of the
 trapezoidal decomposition for point location problem, done for the geometric algorithm's course on AGH UST.
 
 
