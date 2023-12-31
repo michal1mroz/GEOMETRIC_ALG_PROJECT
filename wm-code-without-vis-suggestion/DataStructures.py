@@ -16,6 +16,8 @@ class Point:
     def __gt__(self, other):
         return self.x > other.x
 
+    def toTuple(self):
+        return (self.x, self.y)
 
 class Segment:
     def __init__(self, p, q):
@@ -24,9 +26,13 @@ class Segment:
         if q < p:
             self.left = q
             self.right = p
-        self.m = (self.left.y - self.right.y) / (self.left.x - self.right.x)
-        self.b = self.left.y - (self.m * self.left.x)
-     
+
+        if self.left.x != self.right.x:
+            self.m = (self.left.y - self.right.y) / (self.left.x - self.right.x)
+            self.b = self.left.y - (self.m * self.left.x)
+        else:
+            self.m = None
+            self.b = None
     def __gt__(self,other):
         return self.m*Segment.x+self.b>other.m*Segment.x+other.b
     
@@ -59,6 +65,9 @@ class Trapezoid:
 
         self.node = None
 
+    def __str__(self):
+        return self.bottomSegment.toTuple() + " " + self.topSegment.toTuple()
+
 
 class DNode:
     def __init__(self, type, label):
@@ -79,7 +88,7 @@ class DTree:
         if node.type == 'tnode':
             return node.label
         if node.type == 'pnode':
-            if point < node.point:
+            if point < node.label:
                 return self.query(node.left, point, segment)
             else:
                 return self.query(node.right, point, segment)

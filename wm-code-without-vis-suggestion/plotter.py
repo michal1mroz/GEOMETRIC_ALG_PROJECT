@@ -1,11 +1,65 @@
 import matplotlib.pyplot as plt
-import matplotlib.collections as mcoll
+from vis_bit.main import Visualizer
+from matplotlib.widgets import Button
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.widgets import Button
+from DataStructures import *
+from plotter_functions import trapezoidal_map_vis
+
+class Presenter:
+    def __init__(self, scenes):
+        self.scenes = []
+        self.scene_data = []
+        for vis in scenes:
+            data, plot_data = vis.getData()
+            self.scenes.append(data)
+            self.scene_data.append(plot_data)
+
+        self.i = len(self.scenes) - 1
+
+        plt.subplots_adjust(bottom=0.2)
+
+    def __configure_buttons(self):
+        plt.subplots_adjust(bottom=0.2)
+        ax_prev = plt.axes([0.05, 0.05, 0.15, 0.075])
+        ax_next = plt.axes([0.25, 0.05, 0.15, 0.075])
+        b_next = Button(ax_next, 'Następny')
+        b_next.on_clicked(self.next)
+        b_prev = Button(ax_prev, 'Poprzedni')
+        b_prev.on_clicked(self.prev)
+        return [b_prev, b_next]
+
+    def draw(self):
+        self.ax.clear()
+        for figure in self.scenes[self.i]:
+            figure.draw(self.ax)
+        self.ax.autoscale()
+        plt.draw()
+
+    def next(self, event):
+        self.i = (self.i + 1) % len(self.scenes)
+        self.draw()
+
+    def prev(self, event):
+        self.i = (self.i - 1) % len(self.scenes)
+        self.draw()
+
+    def set_axes(self, ax):
+        self.ax = ax
+
+
+    def display(self):
+        plt.close()
+        fig = plt.figure()
+        self.widgets = self.__configure_buttons()
+        self.ax = plt.axes(autoscale_on=False)
+
+        plt.show()
+        self.draw()
+
 
 class Plotter:
-    def __init__(self, master, xmin=0, xmax=10, ymin=0, ymax=10):
+    def __init__(self, master, scenes=[], xmin=0, xmax=10, ymin=0, ymax=10):
         self.master = master
         self.master.title("Plotter")
 
@@ -19,17 +73,18 @@ class Plotter:
         self.ax.set_aspect('equal', adjustable='box')
 
         self.addedPoints = []
-        self.pointLabels = []
 
         self.lineSegments = []
         self.prevPoint = None
 
-        self.pointCounter = 0
-        self.scenes = []
+        self.interactiveFace = Visualizer()
+
+        self.scenes = scenes
+
+        self.play_scenes_button = tk.Button(master=self.master, text="play vis stages", command=self.startPresenter)
+        self.play_scenes_button.pack(side=tk.RIGHT)
 
         self.filePath = "tmp"
-
-        self.pointColor = {0: 'green', 1: 'red', 2: 'darkblue', 3: 'lightblue', 4: 'brown'}
 
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.master)
         self.canvas_widget = self.canvas.get_tk_widget()
@@ -56,11 +111,25 @@ class Plotter:
                                             command=self.loadFromFile)
         self.load_points_button.pack(side=tk.LEFT, padx=10, pady=10)
 
-
         self.clearDisplay_button = tk.Button(master=self.master, text="Clear display", command=self.clearDisplay)
         self.clearDisplay_button.pack(side=tk.RIGHT, padx=10, pady=10)
 
         self.fig.canvas.mpl_connect('button_press_event', self.onClick)
+
+    def startPresenter(self):
+        if self.scenes != []:
+            presenter = Presenter(self.scenes)
+            presenter.display()
+        else:
+            S = []
+            for p1, p2 in self.lineSegments:
+                L = Point(p1[0], p1[1])
+                R = Point(p2[0], p2[1])
+                S.append(Segment(L, R))
+            T, scenes = trapezoidal_map_vis(self.lineSegments)
+            self.scenes = scenes
+            presenter = Presenter(self.scenes)
+            presenter.display()
 
     def clearDisplay(self):
         self.ax.clear()
@@ -68,10 +137,8 @@ class Plotter:
         self.ax.set_ylim(self.ymin, self.ymax)
         self.ax.set_aspect('equal', adjustable='box')
         self.addedPoints = []
-        self.pointLabels = []
         self.lineSegments = []
         self.prevPoint = None
-        self.pointCounter = 0
         self.add_points_button.config(bg='red')
         self.add_points_enabled = False
         self.canvas.draw()
@@ -118,11 +185,9 @@ class Plotter:
     def onClick(self, event):
         if self.add_points_enabled and event.button == 1:
             x, y = event.xdata, event.ydata
-            label = self.pointCounter
             self.addedPoints.append((x, y))
-            self.pointLabels.append(label)
+
             self.ax.plot(x, y, 'bo')
-            self.ax.text(x, y, label, fontsize=11, ha='right')
 
             if self.prevPoint is not None:
                 x_prev, y_prev = self.prevPoint
@@ -132,5 +197,4 @@ class Plotter:
             else:
                 self.prevPoint = (x, y)
 
-            self.pointCounter += 1
             self.canvas.draw()

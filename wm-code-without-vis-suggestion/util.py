@@ -1,8 +1,10 @@
 import random
 from DataStructures import *
 
+
 def permute(S):
     return random.sample(S, len(S))
+
 
 def updateLeft(old, new):
     if old.topLeft:
@@ -17,6 +19,7 @@ def updateLeft(old, new):
         if old.bottomLeft.bottomRight == old:
             old.bottomLeft.bottomRight = new
 
+
 def updateRight(old, new):
     if old.topRight:
         if old.topRight.topLeft == old:
@@ -29,7 +32,8 @@ def updateRight(old, new):
             old.bottomRight.topLeft = new
         if old.bottomRight.bottomLeft == old:
             old.bottomRight.bottomLeft = new
-        
+
+
 def followSegment(T, segment):
     p, q = segment.left, segment.right
     trapezoids = []
@@ -46,6 +50,7 @@ def followSegment(T, segment):
             trapezoids.append(trapezoids[j].topRight)
         j += 1
     return trapezoids
+
 
 def updateTreeOne(trapezoid, segment, left, top, bottom, right):
     node = trapezoid.node
@@ -200,6 +205,7 @@ def bounds(lines):
         y3 = y4
 
     return x1, x2, y1, y3
+
 
 def createOuter(lines):
     x1, x2, y1, y2 = bounds(lines)
