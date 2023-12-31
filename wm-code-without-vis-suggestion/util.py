@@ -33,13 +33,13 @@ def updateRight(old, new):
 def followSegment(T, segment):
     p, q = segment.left, segment.right
     trapezoids = []
-    Section.updateX(p.x)
+    Segment.updateX(p.x)
     trapezoid_zero = T.query(T.root, p, segment)
     trapezoids.append(trapezoid_zero)
     j = 0
     
     while q > trapezoids[j].rightPoint:
-        Section.updateX(trapezoids[j].rightPoint.x)
+        Segment.updateX(trapezoids[j].rightPoint.x)
         if segment.isAbove(trapezoids[j].rightPoint):
             trapezoids.append(trapezoids[j].bottomRight)
         else:
@@ -137,7 +137,7 @@ def updateTreeMany(trapezoids, segment, newTrapezoidsAbove, newTrapezoidsBelow, 
     k = len(newTrapezoidsAbove)
     m = len(newTrapezoidsBelow)
     
-    while i+j < n-2:
+    while i+j < len(trapezoids)-2:
         node = trapezoids[i+j+1].node
         node.type = 'snode'
         node.label = segment
@@ -199,7 +199,7 @@ def bounds(lines):
     if y3 < y4:
         y3 = y4
 
-    return x1-bx, x2+bx, y1-by, y3+by
+    return x1, x2, y1, y3
 
 def createOuter(lines):
     x1, x2, y1, y2 = bounds(lines)
