@@ -8,6 +8,7 @@
     - DTree
 """
 
+
 class Point:
     def __init__(self, x, y):
         self.x = x
@@ -17,7 +18,11 @@ class Point:
         return self.x > other.x
 
     def toTuple(self):
-        return (self.x, self.y)
+        return self.x, self.y
+
+    def __str__(self):
+        return self.x + "," + self.y
+
 
 class Segment:
     def __init__(self, p, q):
@@ -27,12 +32,13 @@ class Segment:
             self.left = q
             self.right = p
 
-        if self.left.x != self.right.x:
-            self.m = (self.left.y - self.right.y) / (self.left.x - self.right.x)
-            self.b = self.left.y - (self.m * self.left.x)
-        else:
-            self.m = None
-            self.b = None
+        #if self.left.x != self.right.x:
+        self.m = (self.left.y - self.right.y) / (self.left.x - self.right.x)
+        self.b = self.left.y - (self.m * self.left.x)
+        #else:
+        #   self.m = None
+        #  self.b = None
+
     def __gt__(self,other):
         return self.m*Segment.x+self.b>other.m*Segment.x+other.b
     
@@ -50,6 +56,9 @@ class Segment:
     def toTuple(self):
         return ((self.left.x, self.left.y), (self.right.x, self.right.y))
 
+    def __str__(self):
+        return str(self.left.toTuple()) + " " + str(self.right.toTuple())
+
 
 class Trapezoid:
     def __init__(self, top, bottom, p, q):
@@ -66,7 +75,7 @@ class Trapezoid:
         self.node = None
 
     def __str__(self):
-        return self.bottomSegment.toTuple() + " " + self.topSegment.toTuple()
+        return str(self.bottomSegment) + " " + str(self.topSegment)
 
 
 class DNode:

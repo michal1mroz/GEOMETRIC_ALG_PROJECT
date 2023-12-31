@@ -20,7 +20,7 @@ def trapezoidal_map_vis(segments):
     scenes.append(vis)
     for segment in S:
         intersectedTrapezoids = followSegment(T, segment)
-        print(intersectedTrapezoids)
+        print(intersectedTrapezoids[0])
         if len(intersectedTrapezoids) == 1:
             insertIntoOne(T, intersectedTrapezoids[0], segment)
         else:
