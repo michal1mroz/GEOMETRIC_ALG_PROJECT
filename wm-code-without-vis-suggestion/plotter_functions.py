@@ -86,8 +86,8 @@ def insertIntoOne(T: DTree, trapezoid: Trapezoid, segment: Segment):
     topRight = trapezoid.topRight
 
     left, right = None, None
-    top = Trapezoid(trapezoid.topSegment, segment, p, q)
-    bottom = Trapezoid(segment, trapezoid.bottomSegment, p, q)
+    top = Trapezoid(trapezoid.topSegment, segment, p, q) # C
+    bottom = Trapezoid(segment, trapezoid.bottomSegment, p, q) # D
 
     if trapezoid.leftPoint < p:
         left = Trapezoid(trapezoid.topSegment, trapezoid.bottomSegment, trapezoid.leftPoint, p)
@@ -114,7 +114,7 @@ def insertIntoOne(T: DTree, trapezoid: Trapezoid, segment: Segment):
                 bottom.topLeft = topLeft
 
     if trapezoid.rightPoint > q:
-        right = Trapezoid(trapezoid.topSegment, trapezoid.bottomSegment, segment.rightPoint, trapezoid.rightPoint)
+        right = Trapezoid(trapezoid.topSegment, trapezoid.bottomSegment, segment.right, trapezoid.rightPoint)
         right.bottomRight = bottomRight
         right.topRight = topRight
         right.bottomLeft = bottom
@@ -136,8 +136,65 @@ def insertIntoOne(T: DTree, trapezoid: Trapezoid, segment: Segment):
             if segment > topRight.bottomSegment:
                 topRight.bottomLeft = bottom
                 bottom.topRight = topRight
+    node = trapezoid.node
+    if left and right:
+        node.type = 'pnode'
+        node.label = segment.left
+        lnode = DNode('tnode', left)
+        node.left = lnode
+        left.node = lnode
+        rnode = DNode('pnode', segment.right)
+        node.right = rnode
+        rrnode = DNode('tnode', right)
+        rnode.right = rrnode
+        right.node = rrnode
+        rlnode = DNode('snode', segment)
+        rnode.left = rlnode
+        rllnode = DNode('tnode', top)
+        rlnode.left = rllnode
+        top.node = rllnode
+        rlrnode = DNode('tnode', bottom)
+        rlnode.right = rlrnode
+        bottom.node = rlrnode
+    elif not left and right:
+        node.type = 'pnode'
+        node.label = segment.right
+        rnode = DNode('tnode', right)
+        node.right = rnode
+        right.node = rnode
+        lnode = DNode('snode', segment)
+        node.left = lnode
+        llnode = DNode('tnode', top)
+        lnode.left = llnode
+        top.node = llnode
+        lrnode = DNode('tnode', bottom)
+        lnode.right = lrnode
+        bottom.node = lrnode
+    elif left and not right:
+        node.type = 'pnode'
+        node.label = segment.left
+        lnode = DNode('tnode', left)
+        node.left = lnode
+        left.node = lnode
+        rnode = DNode('snode', segment)
+        node.right = rnode
+        rrnode = DNode('tnode', bottom)
+        rnode.right = rrnode
+        bottom.node = rrnode
+        rlnode = DNode('tnode', top)
+        rnode.left = rlnode
+        top.node = rlnode
+    else:
+        node.type = 'snode'
+        node.label = segment
+        lnode = DNode('tnode', top)
+        node.left = lnode
+        top.node = lnode
+        rnode = DNode('tnode', bottom)
+        node.right = rnode
+        bottom.node = rnode
 
-    updateTreeOne(trapezoid, segment, left, top, bottom, right)
+    #updateTreeOne(trapezoid, segment, left, top, bottom, right)
 
 
 def insertIntoMany(T, trapezoids: list[Trapezoid], segment: Segment):
@@ -159,7 +216,7 @@ def insertIntoMany(T, trapezoids: list[Trapezoid], segment: Segment):
         merge = "lower"
     else:
         top = Trapezoid(first.topSegment, segment, p, Point(Segment.x, segment.getY(Segment.x)))
-        bottom = Trapezoid(segment, first.lower, p, first.right_p)
+        bottom = Trapezoid(segment, first.bottomSegment, p, first.rightPoint)
         merge = "upper"
 
     if first.leftPoint < p:
@@ -317,5 +374,83 @@ def insertIntoMany(T, trapezoids: list[Trapezoid], segment: Segment):
         top.topLeft = topLeft
         if topLeft:
             topLeft.topRight = top
+    node = trapezoids[0].node
+    if left:
+        node.type = 'pnode'
+        node.label = segment.left
+        lnode = DNode('tnode', left)
+        node.left = lnode
+        left.node = lnode
+        rnode = DNode('snode', segment)
+        node.right = rnode
+        rlnode = DNode('tnode', newTrapezoidsAbove[0])
+        rnode.left = rlnode
+        newTrapezoidsAbove[0].node = rlnode
+        rrnode = DNode('tnode', newTrapezoidsBelow[0])
+        rnode.right = rrnode
+        newTrapezoidsBelow[0].node = rrnode
+    else:
+        node.type = 'snode'
+        node.label = segment
+        lnode = DNode('tnode', newTrapezoidsAbove[0])
+        node.left = lnode
+        newTrapezoidsAbove[0].node = lnode
+        rnode = DNode('tnode', newTrapezoidsBelow[0])
+        node.right = rnode
+        newTrapezoidsBelow[0].node = rnode
 
-    updateTreeMany(trapezoids, segment, newTrapezoidsAbove, newTrapezoidsBelow, left, right)
+    i = 0
+    j = 0
+    k = len(newTrapezoidsAbove)
+    m = len(newTrapezoidsBelow)
+
+    while i + j < len(trapezoids) - 2:
+        node = trapezoids[i + j + 1].node
+        node.type = 'snode'
+        node.label = segment
+
+        if newTrapezoidsAbove[i].rightPoint > newTrapezoidsBelow[j].rightPoint or i == k - 1:
+            j += 1
+            lnode = newTrapezoidsAbove[i].node
+            node.left = lnode
+            rnode = DNode('tnode', newTrapezoidsBelow[j])
+            node.right = rnode
+            newTrapezoidsBelow[j].node = rnode
+        else:
+            i += 1
+            lnode = DNode('tnode', newTrapezoidsAbove[i])
+            node.left = lnode
+            newTrapezoidsAbove[i].node = lnode
+            rnode = newTrapezoidsBelow[j].node
+            node.right = rnode
+
+    node = trapezoids[-1].node
+    if right:
+        node.type = 'pnode'
+        node.label = segment.right
+        rnode = DNode('tnode', right)
+        node.right = rnode
+        right.node = rnode
+        lnode = DNode('snode', segment)
+        node.left = lnode
+        lastNode = lnode
+    else:
+        node.type = 'snode'
+        node.label = segment
+        lastNode = node
+
+    if i == k - 1 and j == m - 1:
+        lastNode.left = newTrapezoidsAbove[i].node
+        lastNode.right = newTrapezoidsBelow[j].node
+    elif j == m - 1:
+        lnode = DNode('tnode', newTrapezoidsAbove[-1])
+        lastNode.left = lnode
+        newTrapezoidsAbove[-1].node = lnode
+        lastNode.right = newTrapezoidsBelow[j].node
+    else:
+        rnode = DNode('tnode', newTrapezoidsBelow[-1])
+        lastNode.right = rnode
+        newTrapezoidsBelow[-1].node = rnode
+        lastNode.left = newTrapezoidsAbove[i].node
+
+    #updateTreeMany(trapezoids, segment, newTrapezoidsAbove, newTrapezoidsBelow, left, right)
