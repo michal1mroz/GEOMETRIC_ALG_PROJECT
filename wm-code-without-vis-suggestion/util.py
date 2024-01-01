@@ -8,30 +8,18 @@ def permute(S):
 
 def updateLeft(old, new):
     if old.topLeft:
-        if old.topLeft.topRight == old:
-            old.topLeft.topRight = new
-        if old.topLeft.bottomRight == old:
-            old.topLeft.bottomRight = new
+        old.topLeft.topRight = new
             
     if old.bottomLeft:
-        if old.bottomLeft.topRight == old:
-            old.bottomLeft.topRight = new
-        if old.bottomLeft.bottomRight == old:
-            old.bottomLeft.bottomRight = new
-
+        old.bottomLeft.bottomRight = new
+        
 
 def updateRight(old, new):
     if old.topRight:
-        if old.topRight.topLeft == old:
-            old.topRight.topLeft = new
-        if old.topRight.bottomLeft == old:
-            old.topRight.bottomLeft = new
+        old.topRight.topLeft = new
             
     if old.bottomRight:
-        if old.bottomRight.topLeft == old:
-            old.bottomRight.topLeft = new
-        if old.bottomRight.bottomLeft == old:
-            old.bottomRight.bottomLeft = new
+        old.bottomRight.bottomLeft = new
 
 
 def followSegment(T, segment):
