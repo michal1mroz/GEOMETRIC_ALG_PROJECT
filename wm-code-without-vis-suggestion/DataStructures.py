@@ -32,12 +32,13 @@ class Segment:
             self.left = q
             self.right = p
 
-        #if self.left.x != self.right.x:
-        self.m = (self.left.y - self.right.y) / (self.left.x - self.right.x)
-        self.b = self.left.y - (self.m * self.left.x)
-        #else:
-        #   self.m = None
-        #  self.b = None
+        if self.left.x != self.right.x:
+            self.m = (self.left.y - self.right.y) / (self.left.x - self.right.x)
+            self.b = self.left.y - (self.m * self.left.x)
+
+        else:
+            self.m = None
+            self.b = None
 
     def __gt__(self,other):
         return self.m*Segment.x+self.b>other.m*Segment.x+other.b
@@ -51,7 +52,7 @@ class Segment:
         return None
 
     def isAbove(self, point):
-        return point.y > self.getY(point.x)
+        return (point.y > self.getY(point.x))
 
     def toTuple(self):
         return ((self.left.x, self.left.y), (self.right.x, self.right.y))

@@ -3,8 +3,9 @@ from vis_bit.main import Visualizer
 from matplotlib.widgets import Button
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from DataStructures import *
-from plotter_functions import trapezoidal_map_vis
+from plotter_functions import trapezoidal_map_vis, findPointVisualised
+from DataStructures import Point
+
 
 class Presenter:
     def __init__(self, scenes):
@@ -81,9 +82,6 @@ class Plotter:
 
         self.scenes = scenes
 
-        self.play_scenes_button = tk.Button(master=self.master, text="play vis stages", command=self.startPresenter)
-        self.play_scenes_button.pack(side=tk.RIGHT)
-
         self.filePath = "tmp"
 
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.master)
@@ -96,38 +94,48 @@ class Plotter:
         self.quit_button = tk.Button(master=self.master, text="Quit", command=self.master.destroy)
         self.quit_button.pack(side=tk.RIGHT, padx=10, pady=10)
 
-        self.add_points_button = tk.Button(master=self.master, text="Add line segments", command=self.toggle_add_points)
-        self.add_points_button.pack(side=tk.LEFT, padx=10, pady=10)
-        self.add_points_button.config(bg='red')
-        self.add_points_enabled = False
+        self.add_segments_button = tk.Button(master=self.master, text="Add line segments", command=self.toggle_add_segments)
+        self.add_segments_button.pack(side=tk.LEFT, padx=10, pady=10)
+        self.add_segments_button.config(bg='red')
+        self.add_segments_enabled = False
+
+        #self.add_points_button = tk.Button(master=self.master, text="Add points", command=self.toggle_add_points)
+        #self.add_points_button.pack(side=tk.LEFT, padx=10, pady=10)
+        #self.add_points_button.config(bg='red')
+        #self.add_points_enabled = False
 
         self.dump_points_button = tk.Button(master=self.master, text="Print line segments", command=self.dumpPoints)
         self.dump_points_button.pack(side=tk.LEFT, padx=10, pady=10)
 
+        '''
         self.save_points_button = tk.Button(master=self.master, text="Save to .json", command=self.saveToFile)
         self.save_points_button.pack(side=tk.LEFT, padx=10, pady=10)
 
         self.load_points_button = tk.Button(master=self.master, text="Load points from .json",
                                             command=self.loadFromFile)
         self.load_points_button.pack(side=tk.LEFT, padx=10, pady=10)
+        '''
 
         self.clearDisplay_button = tk.Button(master=self.master, text="Clear display", command=self.clearDisplay)
-        self.clearDisplay_button.pack(side=tk.RIGHT, padx=10, pady=10)
+        self.clearDisplay_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+        self.play_scenes_button = tk.Button(master=self.master, text="play vis stages", command=self.startPresenter)
+        self.play_scenes_button.pack(side=tk.LEFT, padx=10, pady=10)
+
+        #self.find_point_button = tk.Button(master=self.master, text="Find last added point", command=self.findPoint)
+        #self.find_point_button.pack(side=tk.LEFT, padx=10, pady=10)
 
         self.fig.canvas.mpl_connect('button_press_event', self.onClick)
 
+    def findPoint(self):
+        findPointVisualised(self.lineSegments, Point(self.addedPoints[-1][0], self.addedPoints[-1][1]))
+
     def startPresenter(self):
-        if self.scenes != []:
+        if self.scenes:
             presenter = Presenter(self.scenes)
             presenter.display()
         else:
-            S = []
-            for p1, p2 in self.lineSegments:
-                L = Point(p1[0], p1[1])
-                R = Point(p2[0], p2[1])
-                S.append(Segment(L, R))
-            T, scenes = trapezoidal_map_vis(self.lineSegments)
-            self.scenes = scenes
+            self.T, self.scenes = trapezoidal_map_vis(self.lineSegments)
             presenter = Presenter(self.scenes)
             presenter.display()
 
@@ -139,16 +147,16 @@ class Plotter:
         self.addedPoints = []
         self.lineSegments = []
         self.prevPoint = None
-        self.add_points_button.config(bg='red')
-        self.add_points_enabled = False
+        self.add_segments_button.config(bg='red')
+        self.add_segments_enabled = False
         self.canvas.draw()
 
-    def toggle_add_points(self):
-        self.add_points_enabled = not self.add_points_enabled
-        if self.add_points_enabled:
-            self.add_points_button.config(bg='green')
+    def toggle_add_segments(self):
+        self.add_segments_enabled = not self.add_segments_enabled
+        if self.add_segments_enabled:
+            self.add_segments_button.config(bg='green')
         else:
-            self.add_points_button.config(bg='red')
+            self.add_segments_button.config(bg='red')
 
     def dumpPoints(self):
         if self.lineSegments != []:
@@ -183,10 +191,8 @@ class Plotter:
         self.filePath = fileName
 
     def onClick(self, event):
-        if self.add_points_enabled and event.button == 1:
+        if self.add_segments_enabled and event.button == 1:
             x, y = event.xdata, event.ydata
-            self.addedPoints.append((x, y))
-
             self.ax.plot(x, y, 'bo')
 
             if self.prevPoint is not None:

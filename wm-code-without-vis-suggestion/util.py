@@ -179,7 +179,9 @@ def updateTreeMany(trapezoids, segment, newTrapezoidsAbove, newTrapezoidsBelow, 
         newTrapezoidsBelow[-1].node = rnode
         lastNode.left = newTrapezoidsAbove[i].node
 
+
 def bounds(lines):
+
     x1 = min(lines, key=lambda x: x[0][0])[0][0]
     x2 = max(lines, key=lambda x: x[1][0])[1][0]
     y1 = min(lines, key=lambda x: x[0][1])[0][1]
@@ -203,4 +205,4 @@ def createOuter(lines):
     upLeft = Point(x1, y2)
     topSegment = Segment(upLeft, upRight)
     bottomSegment = Segment(lowLeft, lowRight)
-    return Trapezoid(topSegment, bottomSegment, upLeft, upRight)
+    return Trapezoid(topSegment, bottomSegment,upLeft, upRight)
