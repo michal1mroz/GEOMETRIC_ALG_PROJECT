@@ -43,31 +43,12 @@ def trapezoidal_map_vis(segments):
 def findPointVisualised(lines, point: Point):
     T, scenes = trapezoidal_map_vis(lines)
     R = createOuter(lines)
-    trap = query_visualied(T, R, T.root, point)
+    trap = T.query(T.root, point)
     vis = draw_map(T, R)
     vis.add_point(point.toTuple(), color="red")
     vis = draw_trapezoid_query(trap, vis)
     vis.show()
 
-
-def query_visualied(sg: DTree, root: Trapezoid, node: DNode, point: Point, segment=None):
-    if node.type == 'tnode':
-        return node.label
-    if node.type == 'pnode':
-        if point < node.label:
-            return query_visualied(sg, root, node.left, point, segment)
-        else:
-            return query_visualied(sg, root, node.right, point, segment)
-    else:
-        if node.label.isAbove(point):
-            return query_visualied(sg, root, node.left, point, segment)
-        elif node.label.getY(point.x) == point.y:
-            if segment.m > node.label.m:
-                return query_visualied(sg, root, node.left, point, segment)
-            else:
-                return query_visualied(sg, root, node.right, point, segment)
-        else:
-            return query_visualied(sg, root, node.right, point, segment)
 
 def draw_map(D,R):
     vis = Visualizer()
@@ -96,7 +77,6 @@ def draw_grid(R: Trapezoid, vis):
     return vis
 
 
-
 def draw_trapezoid(trapezoid: Trapezoid,vis,color="green"):
 
     upper = trapezoid.topSegment.toTuple()
@@ -119,10 +99,9 @@ def draw_trapezoid(trapezoid: Trapezoid,vis,color="green"):
     vis.add_point((trapezoid.leftPoint.toTuple(), trapezoid.rightPoint.toTuple()), color="blue")
     return vis
 
+
 def draw_trapezoid_query(trapezoid: Trapezoid,vis: Visualizer, color="red"):
-
-
-    currentX=trapezoid.leftPoint.x
+    currentX = trapezoid.leftPoint.x
     Segment.updateX(currentX)
 
     leftBottom=(currentX, trapezoid.bottomSegment.getY(currentX))
@@ -142,6 +121,7 @@ def draw_trapezoid_query(trapezoid: Trapezoid,vis: Visualizer, color="red"):
     vis.add_line_segment((upper, lower, leftBound, rightBound), color=color)
     vis.add_point((trapezoid.leftPoint.toTuple(), trapezoid.rightPoint.toTuple()), color="purple")
     return vis
+
 
 def insertIntoOneVis(T: DTree, trapezoid: Trapezoid, segment: Segment):
     p, q = segment.left, segment.right
@@ -261,8 +241,6 @@ def insertIntoOneVis(T: DTree, trapezoid: Trapezoid, segment: Segment):
         rnode = DNode('tnode', bottom)
         node.right = rnode
         bottom.node = rnode
-
-    #updateTreeOne(trapezoid, segment, left, top, bottom, right)
 
 
 def insertIntoManyVis(T, trapezoids: list[Trapezoid], segment: Segment):
@@ -520,5 +498,3 @@ def insertIntoManyVis(T, trapezoids: list[Trapezoid], segment: Segment):
         lastNode.right = rnode
         newTrapezoidsBelow[-1].node = rnode
         lastNode.left = newTrapezoidsAbove[i].node
-
-    #updateTreeMany(trapezoids, segment, newTrapezoidsAbove, newTrapezoidsBelow, left, right)

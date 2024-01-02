@@ -99,31 +99,14 @@ class Plotter:
         self.add_segments_button.config(bg='red')
         self.add_segments_enabled = False
 
-        #self.add_points_button = tk.Button(master=self.master, text="Add points", command=self.toggle_add_points)
-        #self.add_points_button.pack(side=tk.LEFT, padx=10, pady=10)
-        #self.add_points_button.config(bg='red')
-        #self.add_points_enabled = False
-
         self.dump_points_button = tk.Button(master=self.master, text="Print line segments", command=self.dumpPoints)
         self.dump_points_button.pack(side=tk.LEFT, padx=10, pady=10)
-
-        '''
-        self.save_points_button = tk.Button(master=self.master, text="Save to .json", command=self.saveToFile)
-        self.save_points_button.pack(side=tk.LEFT, padx=10, pady=10)
-
-        self.load_points_button = tk.Button(master=self.master, text="Load points from .json",
-                                            command=self.loadFromFile)
-        self.load_points_button.pack(side=tk.LEFT, padx=10, pady=10)
-        '''
 
         self.clearDisplay_button = tk.Button(master=self.master, text="Clear display", command=self.clearDisplay)
         self.clearDisplay_button.pack(side=tk.LEFT, padx=10, pady=10)
 
-        self.play_scenes_button = tk.Button(master=self.master, text="play vis stages", command=self.startPresenter)
+        self.play_scenes_button = tk.Button(master=self.master, text="Create trapezoid map", command=self.startPresenter)
         self.play_scenes_button.pack(side=tk.LEFT, padx=10, pady=10)
-
-        #self.find_point_button = tk.Button(master=self.master, text="Find last added point", command=self.findPoint)
-        #self.find_point_button.pack(side=tk.LEFT, padx=10, pady=10)
 
         self.fig.canvas.mpl_connect('button_press_event', self.onClick)
 
