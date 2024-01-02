@@ -207,6 +207,7 @@ def createOuter(lines):
     bottomSegment = Segment(lowLeft, lowRight)
     return Trapezoid(topSegment, bottomSegment,upLeft, upRight)
 
+
 def generateParallelSegments(maxX, maxY, n):
     divider = maxY / 2.0
     above = n // 2

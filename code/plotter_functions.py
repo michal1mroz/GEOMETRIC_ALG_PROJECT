@@ -1,6 +1,4 @@
-import numpy as np
 from vis_bit.main import Visualizer
-#from DataStructures import *
 from util import *
 
 
@@ -28,7 +26,7 @@ def trapezoidal_map_vis(segments):
         intersects = draw_map(T, R)
         intersects.add_line_segment(segment.toTuple(), color="red")
         for trap in intersectedTrapezoids:
-            intersects = draw_trapezoid(trap,intersects,color="purple")
+            intersects = draw_trapezoid_query(trap,intersects,color="purple")
         scenes.append(intersects)
 
         if len(intersectedTrapezoids) == 1:
@@ -46,15 +44,14 @@ def findPointVisualised(lines, point: Point):
     T, scenes = trapezoidal_map_vis(lines)
     R = createOuter(lines)
     trap = query_visualied(T, R, T.root, point)
-
+    vis = draw_map(T, R)
+    vis.add_point(point.toTuple(), color="red")
+    vis = draw_trapezoid_query(trap, vis)
+    vis.show()
 
 
 def query_visualied(sg: DTree, root: Trapezoid, node: DNode, point: Point, segment=None):
     if node.type == 'tnode':
-        vis = draw_map(sg, root)
-        vis.add_point(point.toTuple(), color="red")
-        vis = draw_trapezoid(node.label, vis, color="red")
-        vis.show()
         return node.label
     if node.type == 'pnode':
         if point < node.label:
@@ -122,6 +119,29 @@ def draw_trapezoid(trapezoid: Trapezoid,vis,color="green"):
     vis.add_point((trapezoid.leftPoint.toTuple(), trapezoid.rightPoint.toTuple()), color="blue")
     return vis
 
+def draw_trapezoid_query(trapezoid: Trapezoid,vis: Visualizer, color="red"):
+
+
+    currentX=trapezoid.leftPoint.x
+    Segment.updateX(currentX)
+
+    leftBottom=(currentX, trapezoid.bottomSegment.getY(currentX))
+    leftTop=(currentX, trapezoid.topSegment.getY(currentX))
+    leftBound=(leftBottom, leftTop)
+
+    currentX = trapezoid.rightPoint.x
+    Segment.updateX(currentX)
+    rightBottom = (currentX, trapezoid.bottomSegment.getY(currentX))
+    rightTop = (currentX, trapezoid.topSegment.getY(currentX))
+    rightBound = (rightBottom, rightTop)
+
+    lower = (leftBottom, rightBottom)
+    upper = (leftTop, rightTop)
+
+    vis.add_point((leftBottom, leftTop, rightBottom, rightTop), color="purple")
+    vis.add_line_segment((upper, lower, leftBound, rightBound), color=color)
+    vis.add_point((trapezoid.leftPoint.toTuple(), trapezoid.rightPoint.toTuple()), color="purple")
+    return vis
 
 def insertIntoOneVis(T: DTree, trapezoid: Trapezoid, segment: Segment):
     p, q = segment.left, segment.right
