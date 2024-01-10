@@ -181,7 +181,10 @@ class Plotter:
             if self.prevPoint is not None:
                 x_prev, y_prev = self.prevPoint
                 self.ax.plot([x_prev, x], [y_prev, y], 'b-')
-                self.lineSegments.append(((x_prev, y_prev), (x, y)))
+                if x_prev < x:
+                    self.lineSegments.append(((x_prev, y_prev), (x, y)))
+                else:
+                    self.lineSegments.append(((x,y),(x_prev,y_prev)))
                 self.prevPoint = None
             else:
                 self.prevPoint = (x, y)
