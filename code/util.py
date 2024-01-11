@@ -226,12 +226,13 @@ def generateParallelSegments(maxX, maxY, n):
     return segments
 
 
-def calculateDSize(node, count):
-    if node == None:
+def calculateDSize(node, count, visited):
+    if node == None or node in visited:
         return
     count[0] += 1
-    calculateDSize(node.left, count)
-    calculateDSize(node.right, count)
+    visited.add(node)
+    calculateDSize(node.left, count, visited)
+    calculateDSize(node.right, count, visited)
 
 
 def generateUniformPoints(maxX, maxY, n):
