@@ -1,5 +1,6 @@
 import random
 from DataStructures import *
+import numpy as np
 
 
 def permute(S):
@@ -9,15 +10,15 @@ def permute(S):
 def updateLeft(old, new):
     if old.topLeft:
         old.topLeft.topRight = new
-            
+
     if old.bottomLeft:
         old.bottomLeft.bottomRight = new
-        
+
 
 def updateRight(old, new):
     if old.topRight:
         old.topRight.topLeft = new
-            
+
     if old.bottomRight:
         old.bottomRight.bottomLeft = new
 
@@ -29,7 +30,7 @@ def followSegment(T, segment):
     trapezoid_zero = T.query(T.root, p, segment)
     trapezoids.append(trapezoid_zero)
     j = 0
-    
+
     while q > trapezoids[j].rightPoint:
         Segment.updateX(trapezoids[j].rightPoint.x)
         if segment.isAbove(trapezoids[j].rightPoint):
@@ -51,7 +52,7 @@ def updateTreeOne(trapezoid, segment, left, top, bottom, right):
         rnode = DNode('pnode', segment.right)
         node.right = rnode
         rrnode = DNode('tnode', right)
-        rnode.right=rrnode
+        rnode.right = rrnode
         right.node = rrnode
         rlnode = DNode('snode', segment)
         rnode.left = rlnode
@@ -63,7 +64,7 @@ def updateTreeOne(trapezoid, segment, left, top, bottom, right):
         bottom.node = rlrnode
     elif not left and right:
         node.type = 'pnode'
-        node.label = segment.right 
+        node.label = segment.right
         rnode = DNode('tnode', right)
         node.right = rnode
         right.node = rnode
@@ -84,7 +85,7 @@ def updateTreeOne(trapezoid, segment, left, top, bottom, right):
         rnode = DNode('snode', segment)
         node.right = rnode
         rrnode = DNode('tnode', bottom)
-        rnode.right=rrnode
+        rnode.right = rrnode
         bottom.node = rrnode
         rlnode = DNode('tnode', top)
         rnode.left = rlnode
@@ -98,7 +99,8 @@ def updateTreeOne(trapezoid, segment, left, top, bottom, right):
         rnode = DNode('tnode', bottom)
         node.right = rnode
         bottom.node = rnode
-        
+
+
 def updateTreeMany(trapezoids, segment, newTrapezoidsAbove, newTrapezoidsBelow, left, right):
     node = trapezoids[0].node
     if left:
@@ -124,18 +126,18 @@ def updateTreeMany(trapezoids, segment, newTrapezoidsAbove, newTrapezoidsBelow, 
         rnode = DNode('tnode', newTrapezoidsBelow[0])
         node.right = rnode
         newTrapezoidsBelow[0].node = rnode
-        
+
     i = 0
     j = 0
     k = len(newTrapezoidsAbove)
     m = len(newTrapezoidsBelow)
-    
-    while i+j < len(trapezoids)-2:
-        node = trapezoids[i+j+1].node
+
+    while i + j < len(trapezoids) - 2:
+        node = trapezoids[i + j + 1].node
         node.type = 'snode'
         node.label = segment
-        
-        if newTrapezoidsAbove[i].rightPoint > newTrapezoidsBelow[j].rightPoint or i == k-1:
+
+        if newTrapezoidsAbove[i].rightPoint > newTrapezoidsBelow[j].rightPoint or i == k - 1:
             j += 1
             lnode = newTrapezoidsAbove[i].node
             node.left = lnode
@@ -149,7 +151,7 @@ def updateTreeMany(trapezoids, segment, newTrapezoidsAbove, newTrapezoidsBelow, 
             newTrapezoidsAbove[i].node = lnode
             rnode = newTrapezoidsBelow[j].node
             node.right = rnode
-            
+
     node = trapezoids[-1].node
     if right:
         node.type = 'pnode'
@@ -164,11 +166,11 @@ def updateTreeMany(trapezoids, segment, newTrapezoidsAbove, newTrapezoidsBelow, 
         node.type = 'snode'
         node.label = segment
         lastNode = node
-        
-    if i == k-1 and j == m-1:
+
+    if i == k - 1 and j == m - 1:
         lastNode.left = newTrapezoidsAbove[i].node
         lastNode.right = newTrapezoidsBelow[j].node
-    elif j == m-1:
+    elif j == m - 1:
         lnode = DNode('tnode', newTrapezoidsAbove[-1])
         lastNode.left = lnode
         newTrapezoidsAbove[-1].node = lnode
@@ -181,7 +183,6 @@ def updateTreeMany(trapezoids, segment, newTrapezoidsAbove, newTrapezoidsBelow, 
 
 
 def bounds(lines):
-
     x1 = min(lines, key=lambda x: x[0][0])[0][0]
     x2 = max(lines, key=lambda x: x[1][0])[1][0]
     y1 = min(lines, key=lambda x: x[0][1])[0][1]
@@ -205,7 +206,7 @@ def createOuter(lines):
     upLeft = Point(x1, y2)
     topSegment = Segment(upLeft, upRight)
     bottomSegment = Segment(lowLeft, lowRight)
-    return Trapezoid(topSegment, bottomSegment,upLeft, upRight)
+    return Trapezoid(topSegment, bottomSegment, upLeft, upRight)
 
 
 def generateParallelSegments(maxX, maxY, n):
@@ -213,14 +214,21 @@ def generateParallelSegments(maxX, maxY, n):
     above = n // 2
     below = n - n // 2
     segments = []
-    
+
     deltaX = deltaY = (maxY - divider) / (above + 1)
     for i in range(1, above + 1):
-        segments.append(((i * deltaX, divider + deltaY),(maxX - i * deltaX, divider + deltaY)))
-       
+        segments.append(((i * deltaX, divider + deltaY), (maxX - i * deltaX, divider + deltaY)))
+
     deltaY = divider / (below + 1)
     for i in range(1, below + 1):
-        segments.append((((i - 0.5) * deltaX, divider - deltaY),(maxX - (i - 0.5) * deltaX, divider - deltaY)))
-        
+        segments.append((((i - 0.5) * deltaX, divider - deltaY), (maxX - (i - 0.5) * deltaX, divider - deltaY)))
+
     return segments
-    
+
+
+def generateUniformPoints(maxX, maxY, n):
+    x_coord = np.random.uniform(1, maxX, n)
+    y_coord = np.random.uniform(1, maxY, n)
+
+    res = [(x, y) for x, y in zip(x_coord, y_coord)]
+    return res
