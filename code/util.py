@@ -226,6 +226,14 @@ def generateParallelSegments(maxX, maxY, n):
     return segments
 
 
+def calculateDSize(node, count):
+    if node == None:
+        return
+    count[0] += 1
+    calculateDSize(node.left, count)
+    calculateDSize(node.right, count)
+
+
 def generateUniformPoints(maxX, maxY, n):
     x_coord = np.random.uniform(1, maxX, n)
     y_coord = np.random.uniform(1, maxY, n)
