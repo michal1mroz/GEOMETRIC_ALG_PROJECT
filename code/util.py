@@ -227,7 +227,7 @@ def generateParallelSegments(maxX, maxY, n):
 
 
 def calculateDSize(node, count, visited):
-    if node == None or node in visited:
+    if node is None or node in visited:
         return
     count[0] += 1
     visited.add(node)
