@@ -8,6 +8,7 @@ def trapezoidal_map_vis(segments):
 
     start = Visualizer()
     start.add_line_segment(segments, color="green")
+    scenes.append(start)
 
     for i in permute(segments):
         p1 = Point(i[0][0], i[0][1])
